@@ -497,50 +497,57 @@ stl = "
 
 (defmacro defunction (name arguments body) () (def name (glosure arguments body)))
 
-(defmacro while (condition body) () (if condition (loop body condition)))
+(defmacro while (condition body) (!result)
+    (if condition (begin
+        (loop (def !result body) condition)
+        !result)))
 
-(defmacro do-while (condition body) () (loop body condition))
+(defmacro do-while (condition body) (!result) (begin
+    (loop (def !result body) condition)
+    !result))
 
-(defmacro for (initializer condition iterator body) () ((lambda ()
+(defmacro for (initializer condition iterator body) (!result) ((lambda ()
     initializer
-    (if condition (loop body iterator condition)))))
+    (if condition (begin
+        (loop (def !result body) iterator condition)
+        !result)))))
 
-(defmacro foreach (key value collection body) (keys) ((lambda () 
-    (def keys (indexes collection))
-    (if keys (begin
+(defmacro foreach (key value collection body) (!keys) ((lambda () 
+    (def !keys (indexes collection))
+    (if !keys (begin
         (loop 
-            (def key (pull keys))
+            (def key (pull !keys))
             (def value (at collection key))
             body
-            keys)
+            !keys)
         value)))))
 
 (defmacro defalias (name keyword) () (defmacro name () () keyword))
 
-(defmacro swap (a b) (temp) (begin
-    (def temp a)
+(defmacro swap (a b) (!temp) (begin
+    (def !temp a)
     (def a b)
-    (def b temp)))
+    (def b !temp)))
 
 (defmacro ++ (var) () (def var (+ var 1)))
 
-(defmacro var++ (var) (temp) (begin
-    (def temp var)
+(defmacro var++ (var) (!temp) (begin
+    (def !temp var)
     (def var (+ var 1))
-    temp))
+    !temp))
 
 (defmacro -- (var) () (def var (- var 1)))
 
-(defmacro var-- (var) (temp) (begin
-    (def temp var)
+(defmacro var-- (var) (!temp) (begin
+    (def !temp var)
     (def var (- var 1))
-    temp))
+    !temp))
 
 (def params (if (hasIndex globals 'params') (at globals 'params') (array)))
 
 (def script-path (program_path))
 
-(defun gensym () (exec '(defmacro _ () (sym) (quote sym))(_)')) ;; Unquote is needed to make it any usefull
+;(defun gensym () (exec '(defmacro _ () (sym) (quote sym))(_)')) ;; Unquote is needed to make it any usefull
 "
 
 prepareCode = stl + char(10) + "
@@ -557,36 +564,39 @@ prepareCode = stl + char(10) + "
             (def file
                 (if (dot comp 'File' (get_abs_path cmd))
                     (dot comp 'File' (get_abs_path cmd))
-                (if (dot comp 'File' (+ '/bin/' cmd)) 
-                    (dot comp 'File' (+ '/bin/' cmd))
-                (if (dot comp 'File' (+ '/usr/bin/' cmd)) 
-                    (dot comp 'File' (+ '/usr/bin/' cmd)) null))))
+                    (if (dot comp 'File' (+ '/bin/' cmd)) 
+                        (dot comp 'File' (+ '/bin/' cmd))
+                        (if (dot comp 'File' (+ '/usr/bin/' cmd)) 
+                            (dot comp 'File' (+ '/usr/bin/' cmd)) null))))
             (if file
                 (if (| (dot file 'is_folder') (dot file 'is_binary')) 
                     (dot (get_shell) 'launch' (dot file 'path') args) 
-                (if (dot file 'has_permission' 'r')
-                    (dot (get_shell) 'launch' (program_path) (+ (dot file 'path') (+ ' ' args)))
-                    (print 'Permission denied.')))
+                    (if (dot file 'has_permission' 'r')
+                        (dot (get_shell) 'launch' (program_path) (+ (dot file 'path') (+ ' ' args)))
+                        (print 'Permission denied.')))
                 (print (+ cmd ': command not found'))))))
         (if (! params)
             (while (!= (def code-str (user_input '</> ' 0 0 1)) (+ (char 59) 'quit'))
                 (if code-str
                     (if (== code-str 'clear')
                         (clear_screen)
-                    (if (== code-str 'exit')
-                        (exit)
-                    (if (== (indexOf code-str (char 40)) null)
-                        (exec-cmd code-str)
-                        (print (exec code-str)))))))
+                        (if (== code-str 'exit')
+                            (exit)
+                            (if (== script-path '/bin/bash') 
+                                (if (== (indexOf code-str (char 40)) null)
+                                    (exec-cmd code-str)
+                                    (print (exec code-str)))
+                                (print (exec code-str)))))))
             (if (| (== (at params 0) '-h') (== (at params 0) '--help'))
                 (print (join (array 'Start REPL: ' (at (split (program_path) '/') (- 0 1)) '\nExecute source file: ' (at (split (program_path) '/') (- 0 1)) ' [file_path]') ''))
-            (if (! (def file (dot (dot (get_shell) 'host_computer') 'File' (at params 0))))
-                (print 'File not found.')
-            (if (dot file 'has_permission' 'r') (begin
-                (def params (slice params 1))
-                (def script-path (dot file 'path'))
-                (exec (dot file 'get_content')))
-            (print 'Permission denied.')))))))
+                (if (! (def file (dot (dot (get_shell) 'host_computer') 'File' (at params 0))))
+                    (print 'File not found.')
+                    (if (dot file 'has_permission' 'r')
+                        (begin
+                            (def params (slice params 1))
+                            (def script-path (dot file 'path'))
+                            (exec (dot file 'get_content')))
+                        (print 'Permission denied.')))))))
 " //This one is hardcoded code you run at start up. Change it to your own for your own embedded apps.
 env = Env(GlobalEnv)
 execute(prepareCode, env)

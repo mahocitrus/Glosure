@@ -3,22 +3,29 @@
 
 (defmacro defunction (name arguments body) () (def name (glosure arguments body)))
 
-(defmacro while (condition body) () (if condition (loop body condition)))
+(defmacro while (condition body) (!result)
+    (if condition (begin
+        (loop (def !result body) condition)
+        !result)))
 
-(defmacro do-while (condition body) () (loop body condition))
+(defmacro do-while (condition body) (!result) (begin
+    (loop (def !result body) condition)
+    !result))
 
-(defmacro for (initializer condition iterator body) () ((lambda ()
+(defmacro for (initializer condition iterator body) (!result) ((lambda ()
     initializer
-    (if condition (loop body iterator condition)))))
+    (if condition (begin
+        (loop (def !result body) iterator condition)
+        !result)))))
 
-(defmacro foreach (key value collection body) (keys) ((lambda () 
-    (def keys (indexes collection))
-    (if keys (begin
+(defmacro foreach (key value collection body) (!keys) ((lambda () 
+    (def !keys (indexes collection))
+    (if !keys (begin
         (loop 
-            (def key (pull keys))
+            (def key (pull !keys))
             (def value (at collection key))
             body
-            keys)
+            !keys)
         value)))))
 
 (defmacro defalias (name keyword) () (defmacro name () () keyword))
@@ -46,4 +53,4 @@
 
 (def script-path (program_path))
 
-(defun gensym () (exec '(defmacro _ () (sym) (quote sym))(_)')) ;; Unquote is needed to make it any usefull
+;(defun gensym () (exec '(defmacro _ () (sym) (quote sym))(_)')) ;; Unquote is needed to make it any usefull

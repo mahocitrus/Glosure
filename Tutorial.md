@@ -157,17 +157,13 @@ exec eval defmacro quote
 
 ### Quoting
 
-```clojure
-(quote) ;; returns an empty string
-(quote an example symbols) ;; returns 'an example symbols' string
-```
-Nothing more, nothing less
+TODO INDEV DO NOT USE!
 
 ### Evaluation and Execution
 
 You can evaluate an s-expression list with `eval`.
 ```clojure
-(eval (array 'print' (quote hello world!))) ;; Equivalent of (print 'hello world!')
+(eval (array 'print' '\'hello world!\'')) ;; Equivalent of (print 'hello world!')
 ```
 
 You can evaluate a string with `exec`:
