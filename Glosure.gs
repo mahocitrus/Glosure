@@ -211,7 +211,6 @@ eval = function(expr, env) //evaluate Glosure s-expression
             if len(lambda.params) == 2 then return @glosure2
             if len(lambda.params) == 3 then return @glosure3
             if len(lambda.params) == 4 then return @glosure4
-            if len(lambda.params) == 5 then return @glosure5
             return @glosure5
         end function
         return buildGlosure
