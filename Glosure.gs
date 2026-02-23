@@ -157,20 +157,20 @@ eval = function(expr, env) //evaluate Glosure s-expression
         readArray = function(array)
             i = 0
             while i < len(array)
-            elem = @array[i]
-            if @elem isa string then array[i] = outer.readString(elem)
-            if @elem isa list then array[i] = outer.readArray(elem)
-            i = i + 1
+                elem = @array[i]
+                if @elem isa string then array[i] = outer.readString(elem)
+                if @elem isa list then array[i] = outer.readArray(elem)
+                i = i + 1
             end while
             return [ "array" ] + array
         end function
         readArgs = function(args)
             i = 0
             while i < len(@args)
-            arg = @args[i]
-            if @arg isa string then args[i] = outer.readString(arg)
-            if @arg isa list then args[i] = outer.readArray(arg)
-            i = i + 1
+                arg = @args[i]
+                if @arg isa string then args[i] = outer.readString(arg)
+                if @arg isa list then args[i] = outer.readArray(arg)
+                i = i + 1
             end while
         end function
         buildGlosure = function
