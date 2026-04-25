@@ -253,7 +253,7 @@ eval = function(expr, env) //evaluate Glosure s-expression
             if len(args) > len(func.params) then return Error("Glosure: Runtime Error: calling a lambda takes at most " + len(func.params) + " params but received " + len(args) + " arguments.")
             for arg in args
                 if func.isGlosure then
-                    evaluatedArgs.push(arg)
+                    evaluatedArgs.push(@arg)
                 else
                     evaluatedArgs.push(eval(@arg, env))
                 end if
