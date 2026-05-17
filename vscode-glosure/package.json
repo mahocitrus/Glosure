@@ -3,7 +3,7 @@
   "displayName": "Glosure",
   "description": "Glosure language support for VS Code — syntax highlighting for .gls files",
   "version": "0.1.0",
-  "publisher": "marinette",
+  "publisher": "glosure-lang",
   "license": "MIT",
   "engines": {
     "vscode": "^1.60.0"
