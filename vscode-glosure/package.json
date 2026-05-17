@@ -1,0 +1,37 @@
+{
+  "name": "glosure",
+  "displayName": "Glosure",
+  "description": "Glosure language support for VS Code — syntax highlighting for .gls files",
+  "version": "0.1.0",
+  "publisher": "glosure-lang",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "glosure",
+        "aliases": [
+          "Glosure",
+          "glosure"
+        ],
+        "extensions": [
+          ".gls"
+        ],
+        "filenames": [],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "glosure",
+        "scopeName": "source.gls",
+        "path": "./syntaxes/glosure.tmLanguage.json"
+      }
+    ]
+  }
+}
