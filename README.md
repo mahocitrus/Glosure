@@ -4,9 +4,9 @@ A programming language with lisp-like syntax written in MiniScript for the game 
 This language was made to achieve the most features with the least code, as a Grey Hack hacktool.
 
 ## Philosophy
-### Less is more;
-### Simplicity first, efficiency second;
-### Be self-consistent when possible, and let the host do the work when it's not.
+Less is more;  
+Simplicity first, efficiency second;  
+Be self-consistent when possible, and let the host do the work when it's not.
 
 ## Usage
 This language has 7 datatypes, `string` `number` `list` `map` `null` are the same as GreyScript `string` `number` `list` `map` `null`, `glosure` means GreyScript `function`, `lambda` means a Glosure "anonymous function"
