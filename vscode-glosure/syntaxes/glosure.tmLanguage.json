@@ -1,0 +1,99 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Glosure",
+  "scopeName": "source.gls",
+  "fileTypes": [".gls"],
+  "patterns": [
+    { "include": "#comment" },
+    { "include": "#string" },
+    { "include": "#sexpr" },
+    { "include": "#constant" },
+    { "include": "#number" },
+    { "include": "#gensym" },
+    { "include": "#variable" }
+  ],
+  "repository": {
+    "comment": {
+      "match": ";.*",
+      "name": "comment.line.semicolon.gls"
+    },
+    "string": {
+      "begin": "'",
+      "end": "'",
+      "name": "string.quoted.single.gls",
+      "patterns": [
+        { "match": "\\\\'", "name": "constant.character.escape.gls" }
+      ]
+    },
+    "sexpr": {
+      "begin": "\\(",
+      "end": "\\)",
+      "beginCaptures": {
+        "0": { "name": "punctuation.parenthesis.open.gls" }
+      },
+      "endCaptures": {
+        "0": { "name": "punctuation.parenthesis.close.gls" }
+      },
+      "patterns": [
+        { "include": "#comment" },
+        { "include": "#string" },
+        { "include": "#sexpr" },
+        { "include": "#def-param-list" },
+        { "include": "#param-list" },
+        { "include": "#def-form" },
+        { "include": "#keyword" },
+        { "include": "#gensym" },
+        { "include": "#call-form" },
+        { "include": "#constant" },
+        { "include": "#number" },
+        { "include": "#variable" }
+      ]
+    },
+    "def-param-list": {
+      "match": "\\b(defun|defmacro|defunction)\\s+([a-zA-Z_?][a-zA-Z0-9_!?/-]*)\\s+(\\([^()]*\\))",
+      "captures": {
+        "1": { "name": "keyword.control.gls" },
+        "2": { "name": "entity.name.function.gls" },
+        "3": { "name": "meta.parameters.gls" }
+      }
+    },
+    "param-list": {
+      "match": "\\b(lambda|glosure)\\s+(\\([^()]*\\))",
+      "captures": {
+        "1": { "name": "keyword.control.gls" },
+        "2": { "name": "meta.parameters.gls" }
+      }
+    },
+    "def-form": {
+      "match": "\\b(defun|defmacro|defunction|defalias|def)\\s+([a-zA-Z_?][a-zA-Z0-9_!?/-]*)",
+      "captures": {
+        "1": { "name": "keyword.control.gls" },
+        "2": { "name": "entity.name.function.gls" }
+      }
+    },
+    "keyword": {
+      "match": "\\b(at|set|def|defalias|lambda|if|loop|begin|exec|eval|glosure|dot|array|dict|context|defmacro|quote|defun|defunction|while|do-while|for|foreach|swap)\\b",
+      "name": "keyword.control.gls"
+    },
+    "call-form": {
+      "match": "(?<=\\()([a-zA-Z_?][a-zA-Z0-9_!?/-]*)(?=\\s|\\))",
+      "name": "entity.name.function.gls"
+    },
+    "constant": {
+      "match": "\\b(null|true|false)\\b",
+      "name": "constant.language.gls"
+    },
+    "number": {
+      "match": "-?\\b\\d+(\\.\\d+)?\\b",
+      "name": "constant.numeric.gls"
+    },
+    "gensym": {
+      "match": "![a-zA-Z_][a-zA-Z0-9_!?/-]*",
+      "name": "variable.language.gls"
+    },
+    "variable": {
+      "match": "[a-zA-Z_?][a-zA-Z0-9_!?/-]*",
+      "name": "variable.other.gls"
+    }
+  }
+}
