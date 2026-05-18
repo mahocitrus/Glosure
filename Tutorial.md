@@ -64,7 +64,7 @@ The `null` means the return value of this statement is `null`, it is the return 
 ## 4. Keywords
 There are 15 keywords in Glosure, they are:
 ```clojure
-def lambda if loop begin exec eval glosure dot array dict context defmacro quote
+def = lambda if loop begin exec eval glosure dot array dict context defmacro quote
 ```
 `def` defines a variable. Used like `(def name 'value')`, this expression defines a variable called `name` with its value being `'value'`, variable means a value binded to a name.
 
