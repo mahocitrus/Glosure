@@ -30,24 +30,32 @@
 
 (defmacro defalias (name keyword) () (defmacro name () () keyword))
 
+(defun // (a b) (floor (/ a b)))
+
 (defmacro swap (a b) (!temp) (begin
     (def !temp a)
     (= a b)
     (= b !temp)))
 
 (defmacro ++ (var) () (= var (+ var 1)))
-
 (defmacro var++ (var) (!temp) (begin
     (def !temp var)
     (= var (+ var 1))
     !temp))
 
 (defmacro -- (var) () (= var (- var 1)))
-
 (defmacro var-- (var) (!temp) (begin
     (def !temp var)
     (= var (- var 1))
     !temp))
+
+(defmacro += (var val) () (= var (+ var val)))
+(defmacro -= (var val) () (= var (- var val)))
+(defmacro *= (var val) () (= var (* var val)))
+(defmacro /= (var val) () (= var (/ var val)))
+(defmacro //= (var val) () (= var (// var val)))
+(defmacro %= (var val) () (= var (% var val)))
+(defmacro ^= (var val) () (= var (^ var val)))
 
 (def params (if (hasIndex globals 'params') (at globals 'params') (array)))
 
