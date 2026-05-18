@@ -6,7 +6,7 @@
         iterator)))))
 
 ;; Usage example
-(my-for (def i 0) (< i 5) (def i (+ i 1)) (begin ;; begin is unneccessary if loop evaluates one expression only
+(my-for (def i 0) (< i 5) (= i (+ i 1)) (begin ;; begin is unneccessary if loop evaluates one expression only
     (print i)))
 
 ;; Macro that implements a foreach loop

@@ -32,21 +32,21 @@
 
 (defmacro swap (a b) (!temp) (begin
     (def !temp a)
-    (def a b)
-    (def b !temp)))
+    (= a b)
+    (= b !temp)))
 
-(defmacro ++ (var) () (def var (+ var 1)))
+(defmacro ++ (var) () (= var (+ var 1)))
 
 (defmacro var++ (var) (!temp) (begin
     (def !temp var)
-    (def var (+ var 1))
+    (= var (+ var 1))
     !temp))
 
-(defmacro -- (var) () (def var (- var 1)))
+(defmacro -- (var) () (= var (- var 1)))
 
 (defmacro var-- (var) (!temp) (begin
     (def !temp var)
-    (def var (- var 1))
+    (= var (- var 1))
     !temp))
 
 (def params (if (hasIndex globals 'params') (at globals 'params') (array)))

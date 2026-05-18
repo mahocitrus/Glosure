@@ -40,7 +40,7 @@ reader = function(codeStr) //code string to s-expression
         else if c == "'" then //tokenize string
             start = pos - 1
             while pos < len and codeStr[pos] != "'"
-                if codeStr[pos] == "\" then pos = pos + 1
+                if codeStr[pos] == "\" then pos = pos + 1 //"
                 pos = pos + 1
             end while
             if pos < len and codeStr[pos] == "'" then pos = pos + 1
@@ -73,14 +73,22 @@ Env = function(__outer) //environment for Glosure, only build new environment wh
         if __outer.__outest == null then env.__outest = env else env.__outest = __outer.__outest
     end if
     env.__local = {}
-    env.get = function(symbol)
-        if hasIndex(self.__local, @symbol) then return @self.__local[@symbol]
-        if self.__outer then return @self.__outer.get(symbol)
-        return Error("Glosure: Runtime Error: Unknown symbol '" + symbol + "'.")
+    env.contains = function(self, symbol)
+        return hasIndex(self.__local, @symbol)
     end function
-    env.set = function(symbol, value)
+    env.def = function(self, symbol, value)
         self.__local[@symbol] = @value
         return @value
+    end function
+    env.set = function(self, symbol, value)
+        if self.contains(@symbol) then return @self.def(@symbol, @value)
+        if self.__outer then return @self.__outer.set(@symbol, @value)
+        return Error("Glosure: Runtime Error: Unknown symbol '" + @symbol + "'.")
+    end function
+    env.get = function(symbol)
+        if self.contains(@symbol) then return @self.__local[@symbol]
+        if self.__outer then return @self.__outer.get(symbol)
+        return Error("Glosure: Runtime Error: Unknown symbol '" + @symbol + "'.")
     end function
     return env
 end function
@@ -92,7 +100,7 @@ eval = function(expr, env) //evaluate Glosure s-expression
             ret = []
             i = 0
             while i < len(stri)
-                if stri[i] == "\" and i < len(stri) - 1 then
+                if stri[i] == "\" and i < len(stri) - 1 then //"
                     i = i + 1
                     if stri[i] == "t" then
                         ret.push(char(9))
@@ -117,6 +125,9 @@ eval = function(expr, env) //evaluate Glosure s-expression
     first = @expr[0]
     if @first == "def" then //bind value to symbol
         if len(@expr) < 3 then return Error("Glosure: Runtime Error: def keyword requires 2 arguments.")
+        return env.def(@expr[1], eval(@expr[2], env))
+    else if @first == "=" then
+        if len(@expr) < 3 then return Error("Glosure: Runtime Error: = keyword requires 2 arguments.")
         return env.set(@expr[1], eval(@expr[2], env))
     else if @first == "if" then //if statement
         if len(@expr) < 3 then return Error("Glosure: Runtime Error: if keyword requires 2 or 3 arguments.")
@@ -280,7 +291,7 @@ eval = function(expr, env) //evaluate Glosure s-expression
             end while
             newEnv = Env(func.env)
             for i in indexes(func.params)
-                newEnv.set(@func.params[i], @evaluatedArgs[i])
+                newEnv.def(@func.params[i], @evaluatedArgs[i])
             end for
             result = null
             for bodyExpr in func.body
@@ -562,21 +573,21 @@ stl = "
 
 (defmacro swap (a b) (!temp) (begin
     (def !temp a)
-    (def a b)
-    (def b !temp)))
+    (= a b)
+    (= b !temp)))
 
-(defmacro ++ (var) () (def var (+ var 1)))
+(defmacro ++ (var) () (= var (+ var 1)))
 
 (defmacro var++ (var) (!temp) (begin
     (def !temp var)
-    (def var (+ var 1))
+    (= var (+ var 1))
     !temp))
 
-(defmacro -- (var) () (def var (- var 1)))
+(defmacro -- (var) () (= var (- var 1)))
 
 (defmacro var-- (var) (!temp) (begin
     (def !temp var)
-    (def var (- var 1))
+    (= var (- var 1))
     !temp))
 
 (def params (if (hasIndex globals 'params') (at globals 'params') (array)))

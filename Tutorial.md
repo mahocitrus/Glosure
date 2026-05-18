@@ -62,11 +62,13 @@ Putting all the peices together, this line means call glosure `print` with argum
 The `null` means the return value of this statement is `null`, it is the return value of `print`, and the REPL always print the return value.
 
 ## 4. Keywords
-There are 14 keywords in Glosure, they are:
+There are 15 keywords in Glosure, they are:
 ```clojure
 def lambda if loop begin exec eval glosure dot array dict context defmacro quote
 ```
 `def` defines a variable. Used like `(def name 'value')`, this expression defines a variable called `name` with its value being `'value'`, variable means a value binded to a name.
+
+`=` reassign a variable. Used like `(= name 'new value')`, this expression finds the variable in the scope and reassign it. If it can't find it, it errors. Useful for reassign variables across multiple layers of loops and lambdas.
 
 `lambda` defines a lambda. Used like `(lambda (arg1, arg2, ...) (expr))`. it does not bind to a name by default, aka anonymous function or certain cases closure.
 if you want to run it as soon as it is defined, you can use it like this`((lambda (x) (* x x)) 2) ;returns 4`, if you want to use it later, you should give it a name with `def`, like `(def square (lambda (x) (* x x)))`.

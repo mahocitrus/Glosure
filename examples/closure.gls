@@ -1,0 +1,11 @@
+(def make-counter (lambda ()
+    (def i 0) ;; def define a new variable with name i
+    (lambda (x) 
+        (if (== x null)
+            (print i)
+            (= i (+ i x)))))) ;; = sets a existing variable to a new value, error if the variable doesnt exist.
+
+(def counter (make-counter))
+(counter 10)
+(counter 20)
+(counter) ;prints 30

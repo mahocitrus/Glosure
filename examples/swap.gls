@@ -1,7 +1,7 @@
 (defmacro swap (a b) (,temp) (begin ;; swap macro example
   (def ,temp a)
-  (def a b)
-  (def b ,temp)))
+  (= a b)
+  (= b ,temp)))
 
 
 ;; Usage
