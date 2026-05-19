@@ -402,11 +402,9 @@ GlobalEnv = function
 end function
 
 preprocess = function(expr, env) // Preprocesses macros and stuff
-    if not env.__outest.hasIndex("__macros") then env.__outest.__macros = {} // for macros defined w/ defmacro
-    if not env.__outest.hasIndex("__symbols") then env.__outest.__symbols = [] // gensym(env) calls
+    if not env.__outest.hasIndex("__macros") then env.__outest.__macros = {}
+    if not env.__outest.hasIndex("__gensymCounter") then env.__outest.__gensymCounter = 0
     __macros = env.__outest.__macros
-    __symbols = env.__outest.__symbols
-    __gensymCache = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
     fmap = function(f, expr, env) // Maps f(x) to s-expression with env
         expr = expr[0:]
         i = 0
@@ -430,23 +428,9 @@ preprocess = function(expr, env) // Preprocesses macros and stuff
         end for
         return result
     end function
-    randsym = function
-        uniquesim = ""
-        i = 0
-        while i < 8
-            uniquesim = uniquesim + __gensymCache[floor(rnd * 62)]
-            i = i + 1
-        end while
-        return "#:G" + uniquesim
-    end function
-    gensym = function(env) // Generates and ensures a unique symbol.
-        while true
-            sym = randsym
-            if __symbols.indexOf(sym) == null then
-                __symbols.push(sym)
-                return sym
-            end if
-        end while
+    gensym = function(env) // Generates a unique symbol via counter.
+        env.__outest.__gensymCounter = env.__outest.__gensymCounter + 1
+        return "#:G" + env.__outest.__gensymCounter
     end function
     _preprocess = function(expr, env)
         if not expr isa list then
@@ -473,22 +457,12 @@ preprocess = function(expr, env) // Preprocesses macros and stuff
                     body = expr[4]
                     if not body isa string and not body isa list then return Error("Glosure: Preprocessing Error: defmacro keyword requires body to be either a symbol or an s-expression.")
                     if body isa list then
-                        idxs = syms.indexes
-                        for i in idxs
-                            sym = syms[i]
-                            uniquesim = gensym(env) // Translates into unique symbols in macro expansion
-                            syms[i] = uniquesim
-                            body = deepreplace(body, sym, uniquesim)
-                        end for
-                        idxs = args.indexes
-                        for i in idxs
-                            arg = args[i]
-                            uniquearg = gensym(env) // So that args of macro won't overlap with symbols in expansion
-                            args[i] = uniquearg
-                            body = deepreplace(body, arg, uniquearg)
+                        for sym in syms
+                            body = deepreplace(body, sym, gensym(env))
                         end for
                     end if
                     __macros[name] = [args, body]
+                    return ["begin"] // special form that does nothing.
                 else if keyword == "quote" then // Symbols quoting
                     buildString = function(expr)
                         if not expr isa list then return expr
