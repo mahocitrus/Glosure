@@ -14,8 +14,17 @@
   ],
   "repository": {
     "comment": {
-      "match": ";.*",
-      "name": "comment.line.semicolon.gls"
+      "patterns": [
+        {
+          "begin": ";\\|",
+          "end": "\\|;",
+          "name": "comment.block.gls"
+        },
+        {
+          "match": ";.*",
+          "name": "comment.line.semicolon.gls"
+        }
+      ]
     },
     "string": {
       "begin": "'",
@@ -42,6 +51,7 @@
         { "include": "#param-list" },
         { "include": "#def-form" },
         { "include": "#keyword" },
+        { "include": "#stl-operator" },
         { "include": "#gensym" },
         { "include": "#call-form" },
         { "include": "#constant" },
@@ -73,6 +83,10 @@
     },
     "keyword": {
       "match": "\\b(at|set|def|defalias|lambda|if|loop|begin|exec|eval|glosure|dot|array|dict|context|defmacro|quote|defun|defunction|while|do-while|for|foreach|swap)\\b",
+      "name": "keyword.control.gls"
+    },
+    "stl-operator": {
+      "match": "(?<=\\()(var\\+\\+|var--|\\+\\+|--|\\+=|-=|\\*=|\\/\\/=|\\/=|%=|\\^=|\\/\\/|=)(?=\\s|\\))",
       "name": "keyword.control.gls"
     },
     "call-form": {

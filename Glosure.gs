@@ -31,6 +31,12 @@ reader = function(codeStr) //code string to s-expression
             if stack.len < 2 then return Error("Glosure: Error: Unbalanced parenthesis.")
             top = stack.pop
             stack[-1].push(top)
+        else if c == "-" and pos < len and isNum.hasIndex(codeStr[pos]) then //tokenize negative number
+            start = pos - 1
+            while pos < len and isNum.hasIndex(codeStr[pos])
+                pos = pos + 1
+            end while
+            stack[-1].push(val(codeStr[start:pos]))
         else if isNum.hasIndex(c) then //tokenize number
             start = pos - 1
             while pos < len and isNum.hasIndex(codeStr[pos])
@@ -46,10 +52,21 @@ reader = function(codeStr) //code string to s-expression
             if pos < len and codeStr[pos] == "'" then pos = pos + 1
             stack[-1].push(codeStr[start:pos])
         else if c == ";" then //ignore comment
-            while pos < len and codeStr[pos] != newline
+            if pos < len and codeStr[pos] == "|" then //multiline comment ;| ... |;
                 pos = pos + 1
-            end while
-            if pos < len and codeStr[pos] == newline then pos = pos + 1
+                while pos < len - 1
+                    if codeStr[pos] == "|" and codeStr[pos + 1] == ";" then
+                        pos = pos + 2
+                        break
+                    end if
+                    pos = pos + 1
+                end while
+            else //single-line comment
+                while pos < len and codeStr[pos] != newline
+                    pos = pos + 1
+                end while
+                if pos < len and codeStr[pos] == newline then pos = pos + 1
+            end if
         else //tokenize symbol
             start = pos - 1
             while pos < len and not isDel.hasIndex(codeStr[pos])
