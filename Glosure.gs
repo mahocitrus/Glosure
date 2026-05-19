@@ -533,14 +533,16 @@ stl = "
         (loop (def !result body) iterator condition)
         !result)))))
 
-(defmacro foreach (key value collection body) (!keys) ((lambda () 
+(defmacro foreach (key value collection body) (!keys, !idx, !len) ((lambda ()
     (def !keys (indexes collection))
-    (if !keys (begin
+    (def !len (len !keys))
+    (def !idx 0)
+    (if !len (begin
         (loop 
-            (def key (pull !keys))
+            (def key (at !keys (var++ !idx)))
             (def value (at collection key))
             body
-            !keys)
+            (< !idx !len))
         value)))))
 
 (defmacro defalias (name keyword) () (defmacro name () () keyword))
