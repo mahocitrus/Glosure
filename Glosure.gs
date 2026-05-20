@@ -31,26 +31,35 @@ reader = function(codeStr) //code string to s-expression
             if stack.len < 2 then return Error("Glosure: Error: Unbalanced parenthesis.")
             top = stack.pop
             stack[-1].push(top)
-        else if c == "-" and pos < len and isNum.hasIndex(codeStr[pos]) then //tokenize negative number
-            start = pos - 1
-            while pos < len and isNum.hasIndex(codeStr[pos])
-                pos = pos + 1
-            end while
-            stack[-1].push(val(codeStr[start:pos]))
-        else if isNum.hasIndex(c) then //tokenize number
+        else if isNum.hasIndex(c) or (c == "-" and pos < len and isNum.hasIndex(codeStr[pos])) then //tokenize number
             start = pos - 1
             while pos < len and isNum.hasIndex(codeStr[pos])
                 pos = pos + 1
             end while
             stack[-1].push(val(codeStr[start:pos]))
         else if c == "'" then //tokenize string
-            start = pos - 1
+            token = ["'"]
             while pos < len and codeStr[pos] != "'"
-                if codeStr[pos] == "\" then pos = pos + 1 //"
+                if pos < len - 1 and codeStr[pos] == "\" then //"
+                    pos = pos + 1
+                    if codeStr[pos] == "t" then
+                        token.push(char(9))
+                    else if codeStr[pos] == "n" then
+                        token.push(char(10))
+                    else if codeStr[pos] == "r" then
+                        token.push(char(13))
+                    else
+                        token.push(codeStr[pos])
+                    end if
+                else
+                    token.push(codeStr[pos])
+                end if
                 pos = pos + 1
             end while
-            if pos < len and codeStr[pos] == "'" then pos = pos + 1
-            stack[-1].push(codeStr[start:pos])
+            if pos >= len then return Error("Glosure: Error: Unbalanced quotes.")
+            token.push("'")
+            pos = pos + 1
+            stack[-1].push(token.join(""))
         else if c == ";" then //ignore comment
             if pos < len and codeStr[pos] == "|" then //multiline comment ;| ... |;
                 pos = pos + 1
@@ -113,27 +122,7 @@ eval = function(expr, env) //evaluate Glosure s-expression
     if not @expr isa list then
         if not @expr isa string then return @expr
         if expr[0] == "'" then
-            stri = expr[1:-1]
-            ret = []
-            i = 0
-            while i < len(stri)
-                if stri[i] == "\" and i < len(stri) - 1 then //"
-                    i = i + 1
-                    if stri[i] == "t" then
-                        ret.push(char(9))
-                    else if stri[i] == "n" then
-                        ret.push(char(10))
-                    else if stri[i] == "r" then
-                        ret.push(char(13))
-                    else
-                        ret.push(stri[i])
-                    end if
-                else
-                    ret.push(stri[i])
-                end if
-                i = i + 1
-            end while
-            return ret.join("")
+            return expr[1:-1]
         else
             return env.get(expr)
         end if
@@ -146,6 +135,9 @@ eval = function(expr, env) //evaluate Glosure s-expression
     else if @first == "=" then
         if len(@expr) < 3 then return Error("Glosure: Runtime Error: = keyword requires 2 arguments.")
         return env.set(@expr[1], eval(@expr[2], env))
+    else if @first == "quote" then
+        if len(@expr) != 2 then return Error("Glosure: Runtime Error: quote keyword requires 2 arguments.")
+        return @expr[1]
     else if @first == "if" then //if statement
         if len(@expr) < 3 then return Error("Glosure: Runtime Error: if keyword requires 2 or 3 arguments.")
         if eval(@expr[1], env) then return eval(@expr[2], env)
@@ -480,20 +472,6 @@ preprocess = function(expr, env) // Preprocesses macros and stuff
                     end if
                     __macros[name] = [args, body]
                     return ["begin"] // special form that does nothing.
-                else if keyword == "quote" then // Symbols quoting
-                    buildString = function(expr)
-                        if not expr isa list then return expr
-                        ret = []
-                        for atom in expr
-                            ret.push(buildString(atom))
-                        end for
-                        return "(" + ret.join(" ") + ")"
-                    end function
-                    ret = []
-                    for atom in expr[1:]
-                        ret.push(buildString(atom))
-                    end for
-                    return "'" + ret.join(" ") + "'"
                 else if __macros.hasIndex(keyword) then // Macro expansion
                     macroname = keyword
                     macroargs = __macros[macroname][0]
