@@ -4,7 +4,7 @@ end function
 reader = function(codeStr) //code string to s-expression
     newline = char(10)
     whitespace = ", " + char(9) + newline + char(13) // \t, \n, \r
-    delimiters = " .'();" + char(9) + newline + char(13)
+    delimiters = " ,.'();" + char(9) + newline + char(13)
     numbers = "0123456789."
 
     // Precompute tables
@@ -528,7 +528,7 @@ stl = "
         (loop (def !result body) iterator condition)
         !result)))))
 
-(defmacro foreach (key value collection body) (!keys, !idx, !len) ((lambda ()
+(defmacro foreach (key value collection body) (!keys !idx !len) ((lambda ()
     (def !keys (indexes collection))
     (def !len (len !keys))
     (def !idx 0)

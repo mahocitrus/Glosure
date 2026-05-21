@@ -18,7 +18,7 @@
         (loop (def !result body) iterator condition)
         !result)))))
 
-(defmacro foreach (key value collection body) (!keys, !idx, !len) ((lambda ()
+(defmacro foreach (key value collection body) (!keys !idx !len) ((lambda ()
     (def !keys (indexes collection))
     (def !len (len !keys))
     (def !idx 0)
