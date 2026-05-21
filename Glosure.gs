@@ -111,7 +111,7 @@ Env = function(__outer) //environment for Glosure, only build new environment wh
         if self.__outer then return @self.__outer.set(@symbol, @value)
         return Error("Glosure: Runtime Error: Unknown symbol '" + @symbol + "'.")
     end function
-    env.get = function(symbol)
+    env.get = function(self, symbol)
         if self.contains(@symbol) then return @self.__local[@symbol]
         if self.__outer then return @self.__outer.get(symbol)
         return Error("Glosure: Runtime Error: Unknown symbol '" + @symbol + "'.")
