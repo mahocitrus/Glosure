@@ -219,48 +219,21 @@ eval = function(expr, env) //evaluate Glosure s-expression
         end function
         return buildGlosure
     else if @first == "dot" then //invoke host method. Warning: more arguments than a method can take will result in crash and the Glosure interpreter cannot catch this error!
-        length = []
-        temp = function(object, method, args)
-            method = @object[@method]
-            return method(@object)
-        end function
-        length.push(@temp)
-        temp = function(object, method, args)
-            method = @object[@method]
-            return method(@object, @args[0])
-        end function
-        length.push(@temp)
-        temp = function(object, method, args)
-            method = @object[@method]
-            return method(@object, @args[0], @args[1])
-        end function
-        length.push(@temp)
-        temp = function(object, method, args)
-            method = @object[@method]
-            return method(@object, @args[0], @args[1], @args[2])
-        end function
-        length.push(@temp)
-        temp = function(object, method, args)
-            method = @object[@method]
-            return method(@object, @args[0], @args[1], @args[2], @args[3])
-        end function
-        length.push(@temp)
-        temp = function(object, method, args)
-            method = @object[@method]
-            return method(@object, @args[0], @args[1], @args[2], @args[3], @args[4])
-        end function
-        length.push(@temp)
         if len(expr) < 3 then return Error("Glosure: Runtime Error: dot keyword requires at least 2 arguments.")
-        if len(expr) > len(length) then return Error("Glosure: Runtime Error: dot keyword take at most " + (len(length) - 1) + " params but received " + (len(expr) - 1) + " arguments.")
+        if len(expr) > 7 then return Error("Glosure: Runtime Error: dot keyword take at most 6 params but received " + (len(expr) - 1) + " arguments.")
         args = []
         for arg in expr[1:]
             args.push(eval(@arg, env))
         end for
         object = @args[0]
-        method = @args[1]
+        method = @object[@args[1]]
         args = args[2:]
-        run = @length[len(args)]
-        return run(@object, @method, args)
+        if len(args) == 0 then return method(@object)
+        if len(args) == 1 then return method(@object, @args[0])
+        if len(args) == 2 then return method(@object, @args[0], @args[1])
+        if len(args) == 3 then return method(@object, @args[0], @args[1], @args[2])
+        if len(args) == 4 then return method(@object, @args[0], @args[1], @args[2], @args[3])
+        return method(@object, @args[0], @args[1], @args[2], @args[3], @args[4])
     else if @first == "array" then
         args = []
         for arg in expr[1:]
@@ -302,37 +275,16 @@ eval = function(expr, env) //evaluate Glosure s-expression
             end for
             return @result
         else if @func isa funcRef then
+            if len(args) > 5 then return Error("Glosure: Runtime Error: glosure takes at most 5 params but received " + len(args) + " arguments.")
             for arg in args
                 evaluatedArgs.push(eval(@arg, env))
             end for
-            length = []
-            temp = function(args, func)
-                return func()
-            end function
-            length.push(@temp)
-            temp = function(args, func)
-                return func(@args[0])
-            end function
-            length.push(@temp)
-            temp = function(args, func)
-                return func(@args[0], @args[1])
-            end function
-            length.push(@temp)
-            temp = function(args, func)
-                return func(@args[0], @args[1], @args[2])
-            end function
-            length.push(@temp)
-            temp = function(args, func)
-                return func(@args[0], @args[1], @args[2], @args[3])
-            end function
-            length.push(@temp)
-            temp = function(args, func)
-                return func(@args[0], @args[1], @args[2], @args[3], @args[4])
-            end function
-            length.push(@temp)
-            if len(evaluatedArgs) > len(length) - 1 then return Error("Glosure: Runtime Error: glosure takes at most " + (len(length) - 1) + " params but received " + len(evaluatedArgs) + " arguments.")
-            run = @length[len(evaluatedArgs)]
-            return run(evaluatedArgs, @func)
+            if len(evaluatedArgs) == 0 then return func()
+            if len(evaluatedArgs) == 1 then return func(@evaluatedArgs[0])
+            if len(evaluatedArgs) == 2 then return func(@evaluatedArgs[0], @evaluatedArgs[1])
+            if len(evaluatedArgs) == 3 then return func(@evaluatedArgs[0], @evaluatedArgs[1], @evaluatedArgs[2])
+            if len(evaluatedArgs) == 4 then return func(@evaluatedArgs[0], @evaluatedArgs[1], @evaluatedArgs[2], @evaluatedArgs[3])
+            return func(@evaluatedArgs[0], @evaluatedArgs[1], @evaluatedArgs[2], @evaluatedArgs[3], @evaluatedArgs[4])
         end if
     end if
 end function
