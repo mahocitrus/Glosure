@@ -274,7 +274,7 @@ def evaluate(expr, env):
                 newEnv.define(func['params'][i], evaluatedArgs[i])
             result = None
             for bodyExpr in func['body']:
-                result = evaluate(bodyExpr, env)
+                result = evaluate(bodyExpr, newEnv)
             return result
         elif callable(func):
             for arg in args:
