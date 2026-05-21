@@ -163,7 +163,6 @@ eval = function(expr, env) //evaluate Glosure s-expression
             "params": @expr[1],
             "body": expr[2:],
             "env": @env,
-            "isGlosure": 0,
         }
     else if @first == "begin" then //evaluate each argument and return the last one.
         result = null
@@ -182,11 +181,10 @@ eval = function(expr, env) //evaluate Glosure s-expression
         if not @expr[1] isa list then return Error("Glosure: Runtime Error: glosure requires a list as params.")
         if len(@expr[1]) > 5 then return Error("Glosure: Runtime Error: glosure can only take 5 or less params.")
         lambda = {
-            "classID": "lambda",
+            "classID": "glosure",
             "params": @expr[1],
             "body": expr[2:],
             "env": @env,
-            "isGlosure": 1,
         }
         __eval = @eval
         __env = @env
@@ -286,14 +284,10 @@ eval = function(expr, env) //evaluate Glosure s-expression
         func = eval(@first, env)
         args = expr[1:]
         evaluatedArgs = []
-        if @func isa map and hasIndex(func, "classID") and func.classID == "lambda" then
-            if len(args) > len(func.params) then return Error("Glosure: Runtime Error: calling a lambda takes at most " + len(func.params) + " params but received " + len(args) + " arguments.")
+        if @func isa map and hasIndex(func, "classID") and (func.classID == "lambda" or func.classID == "glosure") then
+            if len(args) > len(func.params) then return Error("Glosure: Runtime Error: calling a " + func.classID + " takes at most " + len(func.params) + " params but received " + len(args) + " arguments.")
             for arg in args
-                if func.isGlosure then
-                    evaluatedArgs.push(@arg)
-                else
-                    evaluatedArgs.push(eval(@arg, env))
-                end if
+                if func.classID == "lambda" then evaluatedArgs.push(eval(@arg, env)) else evaluatedArgs.push(@arg)
             end for
             while len(evaluatedArgs) < len(func.params)
                 evaluatedArgs.push(null) //append null for not enough arguments
