@@ -388,61 +388,55 @@ preprocess = function(expr, env) // Preprocesses macros and stuff
         return "#:G" + env.__outest.__gensymCounter
     end function
     _preprocess = function(expr, env)
-        if not expr isa list then
-            return expr
-        else
-            if expr.len == 0 then
-                return expr[0:]
-            else
-                keyword = expr[0]
-                if keyword == "defmacro" then // Macro definition
-                    if expr.len != 5 then return Error("Glosure: Preprocessing Error: defmacro keyword requires 4 arguments.")
-                    name = expr[1]
-                    if not name isa string then return Error("Glosure: Preprocessing Error: defmacro keyword requires name to be a symbol.")
-                    args = expr[2]
-                    if not args isa list then return Error("Glosure: Preprocessing Error: defmacro keyword requires args to be an s-expression.")
-                    for arg in args
-                        if not arg isa string then return Error("Glosure: Preprocessing Error: defmacro keyword requires each macro argument to be a symbol.")
-                    end for
-                    syms = expr[3]
-                    if not syms isa list then return Error("Glosure: Preprocessing Error: defmacro keyword requires macro gensym symbols to be an s-expression.")
-                    for sym in syms
-                        if not sym isa string then return Error("Glosure: Preprocessing Error: defmacro keyword requires each macro gensym symbol to be a symbol.")
-                    end for
-                    body = expr[4]
-                    if not body isa string and not body isa list then return Error("Glosure: Preprocessing Error: defmacro keyword requires body to be either a symbol or an s-expression.")
-                    if body isa list then
-                        for sym in syms
-                            body = deepreplace(body, sym, gensym(env))
-                        end for
-                    end if
-                    __macros[name] = [args, body]
-                    return ["begin"] // special form that does nothing.
-                else if __macros.hasIndex(keyword) then // Macro expansion
-                    macroname = keyword
-                    macroargs = __macros[macroname][0]
-                    macrobody = __macros[macroname][1]
-                    args = expr[1:]
-                    if macroargs.len == 0 then
-                        if args.len == 0 then return _preprocess(macrobody, env)
-                        expr = expr[0:]
-                        expr[0] = _preprocess(macrobody, env)
-                        return _preprocess(expr, env)
-                    else if macroargs.len != args.len then
-                        return Error("Glosure: Preprocessing Error: " + macroname + " macro requires " + macroargs.len + " arguments.")
-                    else
-                        body = macrobody[0:]
-                        for i in args.indexes
-                            macroarg = macroargs[i]
-                            arg = args[i]
-                            body = deepreplace(body, macroarg, arg)
-                        end for
-                        return _preprocess(body, env)
-                    end if
-                else
-                    return fmap(@_preprocess, expr, env)
-                end if
+        if not expr isa list then return expr
+        if expr.len == 0 then return expr[0:]
+        keyword = expr[0]
+        if keyword == "defmacro" then // Macro definition
+            if expr.len != 5 then return Error("Glosure: Preprocessing Error: defmacro keyword requires 4 arguments.")
+            name = expr[1]
+            if not name isa string then return Error("Glosure: Preprocessing Error: defmacro keyword requires name to be a symbol.")
+            args = expr[2]
+            if not args isa list then return Error("Glosure: Preprocessing Error: defmacro keyword requires args to be an s-expression.")
+            for arg in args
+                if not arg isa string then return Error("Glosure: Preprocessing Error: defmacro keyword requires each macro argument to be a symbol.")
+            end for
+            syms = expr[3]
+            if not syms isa list then return Error("Glosure: Preprocessing Error: defmacro keyword requires macro gensym symbols to be an s-expression.")
+            for sym in syms
+                if not sym isa string then return Error("Glosure: Preprocessing Error: defmacro keyword requires each macro gensym symbol to be a symbol.")
+            end for
+            body = expr[4]
+            if not body isa string and not body isa list then return Error("Glosure: Preprocessing Error: defmacro keyword requires body to be either a symbol or an s-expression.")
+            if body isa list then
+                for sym in syms
+                    body = deepreplace(body, sym, gensym(env))
+                end for
             end if
+            __macros[name] = [args, body]
+            return ["begin"] // special form that does nothing.
+        else if __macros.hasIndex(keyword) then // Macro expansion
+            macroname = keyword
+            macroargs = __macros[macroname][0]
+            macrobody = __macros[macroname][1]
+            args = expr[1:]
+            if macroargs.len == 0 then
+                if args.len == 0 then return _preprocess(macrobody, env)
+                expr = expr[0:]
+                expr[0] = _preprocess(macrobody, env)
+                return _preprocess(expr, env)
+            else if macroargs.len != args.len then
+                return Error("Glosure: Preprocessing Error: " + macroname + " macro requires " + macroargs.len + " arguments.")
+            else
+                body = macrobody[0:]
+                for i in args.indexes
+                    macroarg = macroargs[i]
+                    arg = args[i]
+                    body = deepreplace(body, macroarg, arg)
+                end for
+                return _preprocess(body, env)
+            end if
+        else
+            return fmap(@_preprocess, expr, env)
         end if
     end function
     return _preprocess(expr, env)
