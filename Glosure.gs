@@ -117,11 +117,7 @@ end function
 eval = function(expr, env) //evaluate Glosure s-expression
     if not @expr isa list then
         if not @expr isa string then return @expr
-        if expr[0] == "'" then
-            return expr[1:-1]
-        else
-            return env.get(expr)
-        end if
+        if expr[0] == "'" then return expr[1:-1] else return env.get(expr)
     end if
     if not len(expr) then return null
     first = @expr[0]
