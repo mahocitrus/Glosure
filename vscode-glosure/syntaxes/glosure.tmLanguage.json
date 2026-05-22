@@ -51,7 +51,6 @@
         { "include": "#param-list" },
         { "include": "#def-form" },
         { "include": "#keyword" },
-        { "include": "#stl-operator" },
         { "include": "#gensym" },
         { "include": "#call-form" },
         { "include": "#constant" },
@@ -60,7 +59,7 @@
       ]
     },
     "def-param-list": {
-      "match": "\\b(defun|defmacro|defunction)\\s+([a-zA-Z_?][a-zA-Z0-9_!?/-]*)\\s+(\\([^()]*\\))",
+      "match": "\\b(defun|defmacro|defunction)\\s+([a-zA-Z_?][a-zA-Z0-9_!?/-]*|[^ .'();\\t\\n\\r]+)\\s+(\\([^()]*\\))",
       "captures": {
         "1": { "name": "keyword.control.gls" },
         "2": { "name": "entity.name.function.gls" },
@@ -75,7 +74,7 @@
       }
     },
     "def-form": {
-      "match": "\\b(defun|defmacro|defunction|defalias|def)\\s+([a-zA-Z_?][a-zA-Z0-9_!?/-]*)",
+      "match": "\\b(defun|defmacro|defunction|defalias|def)\\s+([a-zA-Z_?][a-zA-Z0-9_!?/-]*|[^ .'();\\t\\n\\r]+)",
       "captures": {
         "1": { "name": "keyword.control.gls" },
         "2": { "name": "entity.name.function.gls" }
@@ -85,12 +84,8 @@
       "match": "\\b(at|set|def|defalias|lambda|if|loop|begin|exec|eval|glosure|dot|array|dict|context|defmacro|quote|defun|defunction|while|do-while|for|foreach|swap)\\b",
       "name": "keyword.control.gls"
     },
-    "stl-operator": {
-      "match": "(?<=\\()(var\\+\\+|var--|\\+\\+|--|\\+=|-=|\\*=|\\/\\/=|\\/=|%=|\\^=|\\/\\/|=)(?=\\s|\\))",
-      "name": "keyword.control.gls"
-    },
     "call-form": {
-      "match": "(?<=\\()([a-zA-Z_?][a-zA-Z0-9_!?/-]*)(?=\\s|\\))",
+      "match": "(?<=\\()(?:[a-zA-Z_?][a-zA-Z0-9_!?/-]*|(?!-?\\d)[^ .'();\\t\\n\\r]+)(?=\\s|\\))",
       "name": "entity.name.function.gls"
     },
     "constant": {
@@ -103,7 +98,7 @@
     },
     "gensym": {
       "match": "![a-zA-Z_][a-zA-Z0-9_!?/-]*",
-      "name": "variable.language.gls"
+      "name": "keyword.other.gls"
     },
     "variable": {
       "match": "[a-zA-Z_?][a-zA-Z0-9_!?/-]*",
