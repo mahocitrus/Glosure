@@ -1,3 +1,5 @@
+const readlineSync = require('readline-sync')
+
 function reader(codeStr) {
     let len = codeStr.length
     let pos = 0
@@ -251,6 +253,7 @@ function GlobalEnv() {
     })
     let general = new Map()
     general.set('print', (str) => console.log(str))
+    general.set('user_input', (str, is_pass, any_key, history) => readlineSync.question(str))
     general.set('program_path', () => '/root/myprogram')
     let miniscriptMethods = new Map()
     miniscriptMethods.set('hasIndex', Array.hasIndex)
@@ -279,7 +282,7 @@ function preprocess(expr, env) {
         }
         return result
     }
-    const gensym = (env) => env.__outest.set('__gensymCounter', env.__outest.get('__gensymCounter') + 1).get('__gensymCounter')
+    const gensym = (env) => '#:G' + env.__outest.set('__gensymCounter', env.__outest.get('__gensymCounter') + 1).get('__gensymCounter')
     const _preprocess = (expr, env) => {
         if (!Array.isArray(expr)) return expr
         if (expr.length === 0) return [...expr]
@@ -408,7 +411,7 @@ stl = `
 `
 
 prepareCode = stl + '\n' + `
-(for (def i 0) (< i 10) (++ i) (print i))
+(loop (def sexpr (user_input '</> ')) (print (exec sexpr)) (!= sexpr ';quit'))
 `
 let env = new Env(GlobalEnv())
 execute(prepareCode, env)
