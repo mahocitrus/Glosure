@@ -219,8 +219,8 @@ def evaluate(expr, env):
     elif first == 'dot':
         if len(expr) < 3:
             raise SyntaxError('Glosure: Runtime Error: dot keyword requires at least 2 arguments.')
-        if len(expr) > 7:
-            raise SyntaxError(f'Glosure: Runtime Error: dot keyword take at most 6 params but received {(len(expr) - 1)} arguments.')
+        if len(expr) > 8:
+            raise SyntaxError(f'Glosure: Runtime Error: dot keyword take at most 7 params but received {(len(expr) - 1)} arguments.')
         args = []
         for arg in expr[1:]:
             args.append(evaluate(arg, env))
