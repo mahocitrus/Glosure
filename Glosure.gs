@@ -212,7 +212,7 @@ eval = function(expr, env) //evaluate Glosure s-expression
         return buildGlosure
     else if @first == "dot" then //invoke host method. Warning: more arguments than a method can take will result in crash and the Glosure interpreter cannot catch this error!
         if len(expr) < 3 then return Error("Glosure: Runtime Error: dot keyword requires at least 2 arguments.")
-        if len(expr) > 7 then return Error("Glosure: Runtime Error: dot keyword take at most 6 params but received " + (len(expr) - 1) + " arguments.")
+        if len(expr) > 8 then return Error("Glosure: Runtime Error: dot keyword take at most 7 params but received " + (len(expr) - 1) + " arguments.")
         args = []
         for arg in expr[1:]
             args.push(eval(@arg, env))
