@@ -472,6 +472,13 @@ stl = "
             (< !idx !len))
         value)))))
 
+(defmacro repeat (times body) (!times !result) (if
+    (> (def !times times) 0)
+    (begin
+        (def !result null)
+        (loop (= !result body) (-- !times))
+        !result)))
+
 (defmacro defalias (name keyword) () (defmacro name () () keyword))
 
 (defun // (a b) (floor (/ a b)))
