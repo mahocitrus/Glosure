@@ -277,6 +277,8 @@ eval = function(expr, env) //evaluate Glosure s-expression
             if len(evaluatedArgs) == 3 then return func(@evaluatedArgs[0], @evaluatedArgs[1], @evaluatedArgs[2])
             if len(evaluatedArgs) == 4 then return func(@evaluatedArgs[0], @evaluatedArgs[1], @evaluatedArgs[2], @evaluatedArgs[3])
             return func(@evaluatedArgs[0], @evaluatedArgs[1], @evaluatedArgs[2], @evaluatedArgs[3], @evaluatedArgs[4])
+        else
+            return Error("Glosure: Runtime Error: '" + @func + "' is not a callable value.")
         end if
     end if
 end function
