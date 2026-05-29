@@ -27,9 +27,9 @@ Use `(lambda (arguments) (body))` to define an anonymous lambda expression(aka f
 
 Use `(glosure (arguments) (body))` to define an anonymous glosure(aka GreyScript function), you can bind it to a variable name with syntax like `(def square (glosure (x) (* x x)))`. This is only used for GreyScript interop and you should not use this when you can use lambda instead.
 
-### Other MiniScript general functions are likely supported, GreyHack general functions are supported but methods needs to invoked with `dot`.
+### Other MiniScript general functions are likely supported, GreyHack general functions are supported but methods needs to be invoked with `dot`.
 
-### Detailed tutorial at Tutorial.md.
+### Detailed tutorial at Tutorial.md. If you want to embed Glosure into another project, see Embedding.md.
 
 ## Example
 `(def cat (lambda (path) (dot (dot (dot (get_shell) 'host_computer') 'File' path) 'get_content')))` A cat command, use like `(cat '/path/to/file')`
