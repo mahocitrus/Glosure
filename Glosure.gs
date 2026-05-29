@@ -559,10 +559,10 @@ prepareCode = stl + char(10) + "
                 (if (! (def file (dot (dot (get_shell) 'host_computer') 'File' (at params 0))))
                     (print 'File not found.')
                     (if (dot file 'has_permission' 'r')
-                        (begin
+                        ((lambda ()
                             (def params (slice params 1))
                             (def script-path (dot file 'path'))
-                            (exec (dot file 'get_content')))
+                            (exec (dot file 'get_content'))))
                         (print 'Permission denied.')))))))
 " //This one is hardcoded code you run at start up. Change it to your own for your own embedded apps.
 env = Env(GlobalEnv)
