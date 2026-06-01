@@ -3,25 +3,25 @@ Error = function(msg) //This is up to implementation to decide.
 end function
 reader = function(codeStr) //code string to s-expression
     newline = char(10)
-    isWs = {",": 1, " ": 1, char(9): 1, newline: 1, char(13): 1}
-    isDel = {",": 1, " ": 1, ".": 1, "'": 1, "(": 1, ")": 1, ";": 1, char(9): 1, newline: 1, char(13): 1}
-    isNum = {"0": 1, "1": 1, "2": 1, "3": 1, "4": 1, "5": 1, "6": 1, "7": 1, "8": 1, "9": 1, ".": 1}
+    whitespaces = " ," + char(9) + newline + char(13)
+    delimiters = " ,.'();" + char(9) + newline + char(13)
+    numbers = "0123456789."
     len = codeStr.len
     pos = 0
     stack = [[]]
     while pos < len
         c = codeStr[pos]
         pos = pos + 1
-        if isWs.hasIndex(c) then continue //ignore whitespace
+        if whitespaces.indexOf(c) != null then continue //ignore whitespace
         if c == "(" then //parse a new list
             stack.push([])
         else if c == ")" then //end a list
             if stack.len < 2 then return Error("Glosure: Error: Unbalanced parenthesis.")
             top = stack.pop
             stack[-1].push(top)
-        else if isNum.hasIndex(c) or (c == "-" and pos < len and isNum.hasIndex(codeStr[pos])) then //tokenize number
+        else if numbers.indexOf(c) != null or (c == "-" and pos < len and numbers.indexOf(codeStr[pos])) != null then //tokenize number
             start = pos - 1
-            while pos < len and isNum.hasIndex(codeStr[pos])
+            while pos < len and numbers.indexOf(codeStr[pos]) != null
                 pos = pos + 1
             end while
             stack[-1].push(val(codeStr[start:pos]))
@@ -66,7 +66,7 @@ reader = function(codeStr) //code string to s-expression
             end if
         else //tokenize symbol
             start = pos - 1
-            while pos < len and not isDel.hasIndex(codeStr[pos])
+            while pos < len and delimiters.indexOf(codeStr[pos]) == null
                 pos = pos + 1
             end while
             stack[-1].push(codeStr[start:pos])
