@@ -77,11 +77,8 @@ reader = function(codeStr) //code string to s-expression
 end function
 Env = function(__outer) //environment for Glosure, only build new environment when calling lambda.
     Error = @Error
-    env = {}
-    env.classID = "env"
-    env.__outer = __outer
-    if __outer == null then env.__outest = env else env.__outest = __outer.__outest
-    env.__local = {}
+    env = {"classID": "env", "__outer": __outer, "__local": {}}
+    if __outer then env.__outest = __outer.__outest else env.__outest = env
     env.contains = function(self, symbol)
         return hasIndex(self.__local, @symbol)
     end function
@@ -327,7 +324,6 @@ GlobalEnv = function
     end for
     return globalEnv
 end function
-
 preprocess = function(expr, env) // Preprocesses macros and stuff
     if not env.__outest.hasIndex("__macros") then env.__outest.__macros = {}
     if not env.__outest.hasIndex("__gensymCounter") then env.__outest.__gensymCounter = 0
