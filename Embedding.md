@@ -16,4 +16,7 @@ if not hasIndex(globals, 'glosureEnv') then //this if statement ensures globals.
     execute(prepareCode, glosureEnv) // execute prepare code to prepare STL and other custom env preparing. You can change prepareCode.
 end if
 ```
-3. 
+3. After reading 1 and 2, if you are still not sure on how to properly embed glosure into your tool, simply paste glosure before any other code, delete anything inside the `prepareCode` string so it looks like the code below, and call `execute('any glosure code', env)` wherever you need glosure.
+```
+prepareCode = stl + char(10) + "" //empty string
+```
