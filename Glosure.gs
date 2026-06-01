@@ -3,29 +3,17 @@ Error = function(msg) //This is up to implementation to decide.
 end function
 reader = function(codeStr) //code string to s-expression
     newline = char(10)
-    whitespace = ", " + char(9) + newline + char(13) // \t, \n, \r
-    delimiters = " ,.'();" + char(9) + newline + char(13)
-    numbers = "0123456789."
-
-    // Precompute tables
-    isWs = {}
-    isDel = {}
-    isNum = {}
-    i = 0; while i < whitespace.len; isWs[whitespace[i]] = 1; i = i + 1; end while
-    i = 0; while i < delimiters.len; isDel[delimiters[i]] = 1; i = i + 1; end while
-    i = 0; while i < numbers.len; isNum[numbers[i]] = 1; i = i + 1; end while
-
+    isWs = {",": 1, " ": 1, char(9): 1, newline: 1, char(13): 1}
+    isDel = {",": 1, " ": 1, ".": 1, "'": 1, "(": 1, ")": 1, ";": 1, char(9): 1, newline: 1, char(13): 1}
+    isNum = {"0": 1, "1": 1, "2": 1, "3": 1, "4": 1, "5": 1, "6": 1, "7": 1, "8": 1, "9": 1, ".": 1}
     len = codeStr.len
     pos = 0
     stack = [[]]
-
     while pos < len
         c = codeStr[pos]
         pos = pos + 1
-
-        if isWs.hasIndex(c) then //ignore whitespace
-            // skip
-        else if c == "(" then //parse a new list
+        if isWs.hasIndex(c) then continue //ignore whitespace
+        if c == "(" then //parse a new list
             stack.push([])
         else if c == ")" then //end a list
             if stack.len < 2 then return Error("Glosure: Error: Unbalanced parenthesis.")
@@ -84,7 +72,6 @@ reader = function(codeStr) //code string to s-expression
             stack[-1].push(codeStr[start:pos])
         end if
     end while
-
     if stack.len != 1 then return Error("Glosure: Error: Unbalanced parenthesis.")
     return ["begin"] + stack[0]
 end function
@@ -104,13 +91,11 @@ Env = function(__outer) //environment for Glosure, only build new environment wh
     end function
     env.set = function(self, symbol, value)
         if self.contains(@symbol) then return @self.def(@symbol, @value)
-        if self.__outer then return @self.__outer.set(@symbol, @value)
-        return Error("Glosure: Runtime Error: Unknown symbol '" + @symbol + "'.")
+        if self.__outer then return @self.__outer.set(@symbol, @value) else return Error("Glosure: Runtime Error: Unknown symbol '" + @symbol + "'.")
     end function
     env.get = function(self, symbol)
         if self.contains(@symbol) then return @self.__local[@symbol]
-        if self.__outer then return @self.__outer.get(symbol)
-        return Error("Glosure: Runtime Error: Unknown symbol '" + @symbol + "'.")
+        if self.__outer then return @self.__outer.get(symbol) else return Error("Glosure: Runtime Error: Unknown symbol '" + @symbol + "'.")
     end function
     return env
 end function
@@ -122,14 +107,11 @@ eval = function(expr, env) //evaluate Glosure s-expression
     if not len(expr) then return null
     first = @expr[0]
     if @first == "def" then //bind value to symbol
-        if len(@expr) < 3 then return Error("Glosure: Runtime Error: def keyword requires 2 arguments.")
-        return env.def(@expr[1], eval(@expr[2], env))
+        if len(@expr) < 3 then return Error("Glosure: Runtime Error: def keyword requires 2 arguments.") else return env.def(@expr[1], eval(@expr[2], env))
     else if @first == "=" then
-        if len(@expr) < 3 then return Error("Glosure: Runtime Error: = keyword requires 2 arguments.")
-        return env.set(@expr[1], eval(@expr[2], env))
+        if len(@expr) < 3 then return Error("Glosure: Runtime Error: = keyword requires 2 arguments.") else return env.set(@expr[1], eval(@expr[2], env))
     else if @first == "quote" then
-        if len(@expr) != 2 then return Error("Glosure: Runtime Error: quote keyword requires 2 arguments.")
-        return @expr[1]
+        if len(@expr) != 2 then return Error("Glosure: Runtime Error: quote keyword requires 2 arguments.") else return @expr[1]
     else if @first == "if" then //if statement
         if len(@expr) < 3 then return Error("Glosure: Runtime Error: if keyword requires 2 or 3 arguments.")
         if eval(@expr[1], env) then return eval(@expr[2], env)
@@ -163,11 +145,9 @@ eval = function(expr, env) //evaluate Glosure s-expression
         end for
         return @result
     else if @first == "exec" then //interpret a string as Glosure code.
-        if len(@expr) != 2 then return Error("Glosure: Runtime Error: exec keyword requires 1 argument.")
-        return execute(eval(@expr[1], env), env)
+        if len(@expr) != 2 then return Error("Glosure: Runtime Error: exec keyword requires 1 argument.") else return execute(eval(@expr[1], env), env)
     else if @first == "eval" then //evaluate a list as Glosure code.
-        if len(@expr) != 2 then return Error("Glosure: Runtime Error: eval keyword requires 1 argument.")
-        return eval(eval(@expr[1], env), env)
+        if len(@expr) != 2 then return Error("Glosure: Runtime Error: eval keyword requires 1 argument.") else return eval(eval(@expr[1], env), env)
     else if @first == "glosure" then //build a "glosure"(host function), advanced feature, extremely dangerous
         if len(@expr) < 3 then return Error("Glosure: Runtime Error: glosure keyword requires 2 or more arguments.")
         if not @expr[1] isa list then return Error("Glosure: Runtime Error: glosure requires a list as params.")
@@ -206,8 +186,7 @@ eval = function(expr, env) //evaluate Glosure s-expression
             if len(lambda.params) == 1 then return @glosure1
             if len(lambda.params) == 2 then return @glosure2
             if len(lambda.params) == 3 then return @glosure3
-            if len(lambda.params) == 4 then return @glosure4
-            return @glosure5
+            if len(lambda.params) == 4 then return @glosure4 else return @glosure5
         end function
         return buildGlosure
     else if @first == "dot" then //invoke host method. Warning: more arguments than a method can take will result in crash and the Glosure interpreter cannot catch this error!
@@ -224,8 +203,7 @@ eval = function(expr, env) //evaluate Glosure s-expression
         if len(args) == 1 then return method(@object, @args[0])
         if len(args) == 2 then return method(@object, @args[0], @args[1])
         if len(args) == 3 then return method(@object, @args[0], @args[1], @args[2])
-        if len(args) == 4 then return method(@object, @args[0], @args[1], @args[2], @args[3])
-        return method(@object, @args[0], @args[1], @args[2], @args[3], @args[4])
+        if len(args) == 4 then return method(@object, @args[0], @args[1], @args[2], @args[3]) else return method(@object, @args[0], @args[1], @args[2], @args[3], @args[4])
     else if @first == "array" then
         args = []
         for arg in expr[1:]
@@ -345,7 +323,7 @@ GlobalEnv = function
         general["cd"] = @cd
     end if
     for method in general + string + list + map
-        globalEnv.__local[@method.key] = @method.value
+        globalEnv.def(@method.key, @method.value)
     end for
     return globalEnv
 end function
