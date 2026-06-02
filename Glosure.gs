@@ -213,10 +213,10 @@ eval = function(expr, env) //evaluate Glosure s-expression
                 evaluatedArgs.push(null) //append null for not enough arguments
             end while
             newEnv = Env(func.env)
+            newEnv.def("_rem", evaluatedArgs[len(func.params):]) // A special symbol that catches extra arguments and store as a list.
             for i in indexes(func.params)
                 newEnv.def(@func.params[i], @evaluatedArgs[i])
             end for
-            newEnv.def("_rem", evaluatedArgs[len(func.params):]) // A special symbol that catches extra arguments and store as a list.
             result = null
             for bodyExpr in func.body
                 result = eval(@bodyExpr, newEnv)
@@ -417,17 +417,17 @@ stl = "
         (loop (def !result body) iterator condition)
         !result)))))
 
-(defmacro foreach (key value collection body) (!keys !idx !len) ((lambda ()
-    (def !keys (indexes collection))
+(defmacro foreach (key value collection body) (!keys !idx !len !result !collection) ((lambda (!collection)
+    (def !keys (indexes !collection))
     (def !len (len !keys))
     (def !idx 0)
     (if !len (begin
-        (loop 
+        (loop
             (def key (at !keys (var++ !idx)))
-            (def value (at collection key))
-            body
+            (def value (at !collection key))
+            (def !result body)
             (< !idx !len))
-        value)))))
+        !result))) collection))
 
 (defmacro repeat (times body) (!times !result) (if
     (> (def !times times) 0)
@@ -436,6 +436,8 @@ stl = "
         !result)))
 
 (defmacro defalias (name keyword) () (defmacro name () () keyword))
+
+(defun concat () (join _rem ''))
 
 (defun // (a b) (floor (/ a b)))
 
@@ -463,6 +465,19 @@ stl = "
 (defmacro //= (var val) () (= var (// var val)))
 (defmacro %= (var val) () (= var (% var val)))
 (defmacro ^= (var val) () (= var (^ var val)))
+(defmacro &= (var val) () (= var (& var val)))
+(defmacro |= (var val) () (= var (| var val)))
+(defmacro != (var val) () (= var (! var val)))
+
+(defun add (result) (foreach k v _rem (+= result v)))
+(defun sub (result) (foreach k v _rem (-= result v)))
+(defun mul (result) (foreach k v _rem (*= result v)))
+(defun div (result) (foreach k v _rem (/= result v)))
+(defun mod (result) (foreach k v _rem (%= result v)))
+(defun pow (result) (foreach k v _rem (^= result v)))
+(defun and (result) (foreach k v _rem (&= result v)))
+(defun or (result) (foreach k v _rem (|= result v)))
+(def not !)
 
 (def params (if (hasIndex globals 'params') (at globals 'params') (array)))
 

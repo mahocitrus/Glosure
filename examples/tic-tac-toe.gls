@@ -1,0 +1,33 @@
+(defun draw-board (board turn) (join (array
+    (join (array 'Player ' (% turn 2) '\'s turn!') '')
+    (join (array '' (at board 0) (at board 1) (at board 2) '') ' | ')
+    (join (array '' (at board 3) (at board 4) (at board 5) '') ' | ')
+    (join (array '' (at board 6) (at board 7) (at board 8) '') ' | ')
+    'Press a key to make a move') '\n -------------\n'))
+
+(defun new-board () (values 'qweasdzxc'))
+
+(defun has (object value) (!= (indexOf object value) null))
+
+(defun game-resumes (board) (!
+    (| (& (== (at board 0) (at board 1)) (== (at board 1) (at board 2)))
+    (| (& (== (at board 3) (at board 4)) (== (at board 4) (at board 5)))
+    (| (& (== (at board 6) (at board 7)) (== (at board 7) (at board 8)))
+    (| (& (== (at board 0) (at board 3)) (== (at board 3) (at board 6)))
+    (| (& (== (at board 1) (at board 4)) (== (at board 4) (at board 7)))
+    (| (& (== (at board 2) (at board 5)) (== (at board 5) (at board 8)))
+    (| (& (== (at board 0) (at board 4)) (== (at board 4) (at board 8)))
+    (& (== (at board 2) (at board 4)) (== (at board 4) (at board 6))))))))))))
+
+(defun game-loop () (begin
+    (def board (new-board))
+    (def turn 0)
+    (loop
+        (print (draw-board board turn) 1)
+        (def move (lower (user_input '> ' 0 1)))
+        (if (& (has board move) (has 'qweasdzxc' move)) (set board (indexOf board move) (% (var++ turn) 2)))
+        (& (game-resumes board) (< turn 9)))
+    (print (join (array 'Player ' (% (++ turn) 2) ' wins!') ''))))
+
+(game-loop)
+

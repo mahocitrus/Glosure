@@ -73,6 +73,7 @@ def = lambda if loop begin exec eval glosure dot array dict context defmacro quo
 `lambda` defines a lambda. Used like `(lambda (arg1, arg2, ...) (expr))`. it does not bind to a name by default, aka anonymous function or certain cases closure.
 if you want to run it as soon as it is defined, you can use it like this`((lambda (x) (* x x)) 2) ;returns 4`, if you want to use it later, you should give it a name with `def`, like `(def square (lambda (x) (* x x)))`.
 Once binded, you can call the lambda with `(square 2) ;returns 4`.
+When you call a lambda with more arguments than its parameters, the extra arguments are stored as a list inside a magic symbol called `_rem`.
 
 `glosure` defines a glosure. Use it like `lambda` but returns a host native `function` instead of `lambda`. Use for host interop, do not use it when you can use `lambda` instead. This is advanced and dangerous.
 
