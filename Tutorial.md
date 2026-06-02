@@ -62,7 +62,7 @@ Putting all the peices together, this line means call glosure `print` with argum
 The `null` means the return value of this statement is `null`, it is the return value of `print`, and the REPL always print the return value.
 
 ## 4. Keywords
-There are 15 keywords in Glosure, they are:
+There are 14 keywords in Glosure, they are:
 ```clojure
 def = lambda if loop begin exec eval glosure dot array dict context defmacro quote
 ```
@@ -149,6 +149,8 @@ Glosure's STL introduces some keywords for more comfortable programming experien
 (def a 1)
 (print (array (var++ a) (++ a))) ;; [1, 3]
 ```
+
+**There are more features in STL, make sure you read it.**
 
 ## 5. Metaprogramming
 

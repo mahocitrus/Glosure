@@ -1,7 +1,7 @@
 ;;
 ;; REPL
 ;;
-(if (== (typeof (include_lib '/lib/testlib.so')) 'TestLib')
+(if (hasIndex globals 'IS_GREYBEL')
     (print 'REPL is unavailable in Greybel.')
     (begin
         (def exec-cmd (lambda (cmd) (begin

@@ -19,7 +19,7 @@ reader = function(codeStr) //code string to s-expression
             if stack.len < 2 then return Error("Glosure: Error: Unbalanced parenthesis.")
             top = stack.pop
             stack[-1].push(top)
-        else if numbers.indexOf(c) != null or (c == "-" and pos < len and numbers.indexOf(codeStr[pos])) != null then //tokenize number
+        else if numbers.indexOf(c) != null or (c == "-" and pos < len and numbers.indexOf(codeStr[pos]) != null) then //tokenize number
             start = pos - 1
             while pos < len and numbers.indexOf(codeStr[pos]) != null
                 pos = pos + 1
@@ -114,12 +114,7 @@ eval = function(expr, env) //evaluate Glosure s-expression
         if eval(@expr[1], env) then return eval(@expr[2], env)
         if len(@expr) > 3 then return eval(@expr[3], env) else return null
     else if @first == "loop" then //loop if the last argument evaluate to true.
-        while len(@expr) == 1 //(loop) halts the program forever.
-        end while
-        result = null
-        for stmt in @expr[1:]
-            result = eval(@stmt, env)
-        end for
+        result = 1 //(loop) halts the program forever.
         while @result
             for stmt in @expr[1:]
                 result = eval(@stmt, env)
@@ -143,30 +138,27 @@ eval = function(expr, env) //evaluate Glosure s-expression
         if len(@expr) < 3 then return Error("Glosure: Runtime Error: glosure keyword requires 2 or more arguments.")
         if not @expr[1] isa list then return Error("Glosure: Runtime Error: glosure requires a list as params.")
         if len(@expr[1]) > 5 then return Error("Glosure: Runtime Error: glosure can only take 5 or less params.")
-        lambda = {"classID": "glosure", "params": @expr[1], "body": expr[2:], "env": @env}
         __eval = @eval
-        __env = @env
         buildGlosure = function
             __eval = @outer.__eval
-            __env = @outer.__env
-            lambda = @outer.lambda
+            lambda = {"classID": "glosure", "params": @expr[1], "body": expr[2:], "env": @env}
             glosure0 = function()
-                return __eval([lambda], __env)
+                return __eval([lambda], lambda.env)
             end function
             glosure1 = function(arg0)
-                return __eval([lambda, @arg0], __env)
+                return __eval([lambda, @arg0], lambda.env)
             end function
             glosure2 = function(arg0, arg1)
-                return __eval([lambda, @arg0, @arg1], __env)
+                return __eval([lambda, @arg0, @arg1], lambda.env)
             end function
             glosure3 = function(arg0, arg1, arg2)
-                return __eval([lambda, @arg0, @arg1, @arg2], __env)
+                return __eval([lambda, @arg0, @arg1, @arg2], lambda.env)
             end function
             glosure4 = function(arg0, arg1, arg2, arg3)
-                return __eval([lambda, @arg0, @arg1, @arg2, @arg3], __env)
+                return __eval([lambda, @arg0, @arg1, @arg2, @arg3], lambda.env)
             end function
             glosure5 = function(arg0, arg1, arg2, arg3, arg4)
-                return __eval([lambda, @arg0, @arg1, @arg2, @arg3, @arg4], __env)
+                return __eval([lambda, @arg0, @arg1, @arg2, @arg3, @arg4], lambda.env)
             end function
             if len(lambda.params) == 0 then return @glosure0
             if len(lambda.params) == 1 then return @glosure1
@@ -304,7 +296,7 @@ GlobalEnv = function
         return @c
     end function
     general = {"active_user": @active_user, "bitwise": @bitwise, "clear_screen": @clear_screen, "command_info": @command_info, "current_date": @current_date, "current_path": @current_path, "exit": @exit, "format_columns": @format_columns, "get_ctf": @get_ctf, "get_custom_object": @get_custom_object, "get_router": @get_router, "get_shell": @get_shell, "get_switch": @get_switch, "home_dir": @home_dir, "include_lib": @include_lib, "is_lan_ip": @is_lan_ip, "is_valid_ip": @is_valid_ip, "launch_path": @launch_path, "mail_login": @mail_login, "nslookup": @nslookup, "parent_path": @parent_path, "print": @print, "program_path": @program_path, "reset_ctf_password": @reset_ctf_password, "typeof": @typeof, "user_bank_number": @user_bank_number, "user_input": @user_input, "user_mail_address": @user_mail_address, "wait": @wait, "whois": @whois, "to_int": @to_int, "time": @time, "abs": @abs, "acos": @acos, "asin": @asin, "atan": @atan, "ceil": @ceil, "char": @char, "cos": @cos, "floor": @floor, "log": @log, "pi": @pi, "range": @range, "round": @round, "rnd": @rnd, "sign": @sign, "sin": @sin, "sqrt": @sqrt, "str": @str, "tan": @tan, "yield": @yield, "slice": @slice, "number": @number, "string": @string, "list": @list, "map": @map, "funcRef": @funcRef, "globals": @globals, "true": true, "false": false, "null": null}
-    if typeof(include_lib("/lib/testlib.so")) != "TestLib" then // Greybel compatibility
+    if not hasIndex(globals, "IS_GREYBEL") then // Greybel compatibility
         general["get_abs_path"] = @get_abs_path
         general["cd"] = @cd
     end if
@@ -440,8 +432,7 @@ stl = "
 (defmacro repeat (times body) (!times !result) (if
     (> (def !times times) 0)
     (begin
-        (def !result null)
-        (loop (= !result body) (-- !times))
+        (loop (def !result body) (-- !times))
         !result)))
 
 (defmacro defalias (name keyword) () (defmacro name () () keyword))
@@ -484,7 +475,7 @@ prepareCode = stl + char(10) + "
 ;;
 ;; REPL
 ;;
-(if (== (typeof (include_lib '/lib/testlib.so')) 'TestLib')
+(if (hasIndex globals 'IS_GREYBEL')
     (print 'REPL is unavailable in Greybel.')
     (begin
         (def exec-cmd (lambda (cmd) (begin
