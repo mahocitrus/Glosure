@@ -206,7 +206,6 @@ eval = function(expr, env) //evaluate Glosure s-expression
         args = expr[1:]
         evaluatedArgs = []
         if @func isa map and hasIndex(func, "classID") and (func.classID == "lambda" or func.classID == "glosure") then
-            if len(args) > len(func.params) then return Error("Glosure: Runtime Error: calling a " + func.classID + " takes at most " + len(func.params) + " params but received " + len(args) + " arguments.")
             for arg in args
                 if func.classID == "lambda" then evaluatedArgs.push(eval(@arg, env)) else evaluatedArgs.push(@arg)
             end for
@@ -217,6 +216,7 @@ eval = function(expr, env) //evaluate Glosure s-expression
             for i in indexes(func.params)
                 newEnv.def(@func.params[i], @evaluatedArgs[i])
             end for
+            newEnv.def("_rem", evaluatedArgs[len(func.params):]) // A special symbol that catches extra arguments and store as a list.
             result = null
             for bodyExpr in func.body
                 result = eval(@bodyExpr, newEnv)
