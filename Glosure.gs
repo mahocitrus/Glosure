@@ -467,7 +467,6 @@ stl = "
 (defmacro ^= (var val) () (= var (^ var val)))
 (defmacro &= (var val) () (= var (& var val)))
 (defmacro |= (var val) () (= var (| var val)))
-(defmacro != (var val) () (= var (! var val)))
 
 (defun add (result) (foreach k v _rem (+= result v)))
 (defun sub (result) (foreach k v _rem (-= result v)))

@@ -1,23 +1,27 @@
-(defun draw-board (board turn) (join (array
-    (join (array 'Player ' (% turn 2) '\'s turn!') '')
-    (join (array '' (at board 0) (at board 1) (at board 2) '') ' | ')
-    (join (array '' (at board 3) (at board 4) (at board 5) '') ' | ')
-    (join (array '' (at board 6) (at board 7) (at board 8) '') ' | ')
-    'Press a key to make a move') '\n -------------\n'))
+(defun draw-board (board turn) (concat
+    (concat 'Player ' (% turn 2) '\'s move!')
+    '\n-------------\n'
+    (concat '| ' (at board 0) ' | ' (at board 1) ' | ' (at board 2) ' |')
+    '\n-------------\n'
+    (concat '| ' (at board 3) ' | ' (at board 4) ' | ' (at board 5) ' |')
+    '\n-------------\n'
+    (concat '| ' (at board 6) ' | ' (at board 7) ' | ' (at board 8) ' |')
+    '\n-------------\n'
+    'Press a key to make a move'))
 
 (defun new-board () (values 'qweasdzxc'))
 
 (defun has (object value) (!= (indexOf object value) null))
 
-(defun game-resumes (board) (!
-    (| (& (== (at board 0) (at board 1)) (== (at board 1) (at board 2)))
-    (| (& (== (at board 3) (at board 4)) (== (at board 4) (at board 5)))
-    (| (& (== (at board 6) (at board 7)) (== (at board 7) (at board 8)))
-    (| (& (== (at board 0) (at board 3)) (== (at board 3) (at board 6)))
-    (| (& (== (at board 1) (at board 4)) (== (at board 4) (at board 7)))
-    (| (& (== (at board 2) (at board 5)) (== (at board 5) (at board 8)))
-    (| (& (== (at board 0) (at board 4)) (== (at board 4) (at board 8)))
-    (& (== (at board 2) (at board 4)) (== (at board 4) (at board 6))))))))))))
+(defun game-resumes (board) (! (or
+    (and (== (at board 0) (at board 1)) (== (at board 1) (at board 2)))
+    (and (== (at board 3) (at board 4)) (== (at board 4) (at board 5)))
+    (and (== (at board 6) (at board 7)) (== (at board 7) (at board 8)))
+    (and (== (at board 0) (at board 3)) (== (at board 3) (at board 6)))
+    (and (== (at board 1) (at board 4)) (== (at board 4) (at board 7)))
+    (and (== (at board 2) (at board 5)) (== (at board 5) (at board 8)))
+    (and (== (at board 0) (at board 4)) (== (at board 4) (at board 8)))
+    (and (== (at board 2) (at board 4)) (== (at board 4) (at board 6))))))
 
 (defun game-loop () (begin
     (def board (new-board))
@@ -27,7 +31,53 @@
         (def move (lower (user_input '> ' 0 1)))
         (if (& (has board move) (has 'qweasdzxc' move)) (set board (indexOf board move) (% (var++ turn) 2)))
         (& (game-resumes board) (< turn 9)))
-    (print (join (array 'Player ' (% (++ turn) 2) ' wins!') ''))))
+    (print (draw-board board turn) 1)
+    (if (game-resumes board) (print 'Draw!') (print (join (array 'Player ' (% (++ turn) 2) ' wins!') '')))))
 
 (game-loop)
 
+;| Same game in miniscript
+draw_board = function(board, turn)
+    return "Player " + (turn % 2) + "'s move!" +
+        char(10) + "-------------" + char(10) +
+        "| " + board[0] + " | " + board[1] + " | " + board[2] + " |" +
+        char(10) + "-------------" + char(10) +
+        "| " + board[3] + " | " + board[4] + " | " + board[5] + " |" +
+        char(10) + "-------------" + char(10) +
+        "| " + board[6] + " | " + board[7] + " | " + board[8] + " |" +
+        char(10) + "-------------" + char(10) +
+        "Press a key to make a move"
+end function
+
+new_board = function
+    return "qweasdzxc".values
+end function
+
+game_resumes = function(board)
+    return not
+        ((board[0] == board[1] and board[1] == board[2]) or
+        (board[3] == board[4] and board[4] == board[5]) or
+        (board[6] == board[7] and board[7] == board[8]) or
+        (board[0] == board[3] and board[3] == board[6]) or
+        (board[1] == board[4] and board[4] == board[7]) or
+        (board[2] == board[5] and board[5] == board[8]) or
+        (board[0] == board[4] and board[4] == board[8]) or
+        (board[2] == board[4] and board[4] == board[6]))
+end function
+
+game_loop = function
+    board = new_board
+    turn = 0
+    while game_resumes(board) and turn < 9
+        print(draw_board(board, turn), 1)
+        move = user_input("> ", 0, 1).lower
+        if board.indexOf(move) != null and "qweasdzxc".indexOf(move) != null then
+            board[board.indexOf(move)] = turn % 2
+            turn = turn + 1
+        end if
+    end while
+    print(draw_board(board, turn), 1)
+    if game_resumes(board) then print "Draw!" else print("Player " + ((turn + 1) % 2) + " wins!")
+end function
+game_loop
+|;
