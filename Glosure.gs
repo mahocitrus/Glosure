@@ -303,6 +303,7 @@ GlobalEnv = function
     for method in general + string + list + map
         globalEnv.def(@method.key, @method.value)
     end for
+    globalEnv.def("Error", @Error) // Since different implementation can have different error handling, we need this Error glosure.
     return globalEnv
 end function
 preprocess = function(expr, env) // Preprocesses macros and stuff
